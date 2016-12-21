@@ -22,6 +22,7 @@ libraryDependencies ++= Seq(
   "com.enragedginger" %% "akka-quartz-scheduler" % "1.5.0-akka-2.4.x",
   "com.adrianhurt" %% "play-bootstrap" % "1.0-P25-B3",
   "com.mohiva" %% "play-silhouette-testkit" % "4.0.0" % "test",
+  "ch.wavein" %% "wi-play-mongo" % "1.4-SNAPSHOT",
   specs2 % Test,
   cache,
   filters

@@ -6,7 +6,7 @@ import javax.inject.Inject
 
 import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
-import models.services.{ AuthTokenService, UserService }
+import _root_.services.{ AuthTokenService, UserService }
 import play.api.i18n.{ I18nSupport, Messages, MessagesApi }
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.mailer.{ Email, MailerClient }
@@ -48,8 +48,8 @@ class ActivateAccountController @Inject() (
 
     userService.retrieve(loginInfo).flatMap {
       case Some(user) if !user.activated =>
-        authTokenService.create(user.userID).map { authToken =>
-          val url = routes.ActivateAccountController.activate(authToken.id).absoluteURL()
+        authTokenService.create(user.identity).map { authToken =>
+          val url = routes.ActivateAccountController.activate(authToken.token).absoluteURL()
 
           mailerClient.send(Email(
             subject = Messages("email.activate.account.subject"),
@@ -70,7 +70,7 @@ class ActivateAccountController @Inject() (
    * @param token The token to identify a user.
    * @return The result to display.
    */
-  def activate(token: UUID) = silhouette.UnsecuredAction.async { implicit request =>
+  def activate(token: String) = silhouette.UnsecuredAction.async { implicit request =>
     authTokenService.validate(token).flatMap {
       case Some(authToken) => userService.retrieve(authToken.userID).flatMap {
         case Some(user) if user.loginInfo.providerID == CredentialsProvider.ID =>

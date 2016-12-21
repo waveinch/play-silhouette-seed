@@ -1,4 +1,4 @@
-package models.services
+package services
 
 import java.util.UUID
 
@@ -19,7 +19,7 @@ trait UserService extends IdentityService[User] {
    * @param id The ID to retrieve a user.
    * @return The retrieved user or None if no user could be retrieved for the given ID.
    */
-  def retrieve(id: UUID): Future[Option[User]]
+  def retrieve(id: String): Future[Option[User]]
 
   /**
    * Saves a user.
