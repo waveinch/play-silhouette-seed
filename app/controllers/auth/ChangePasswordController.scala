@@ -1,14 +1,15 @@
-package controllers
+package controllers.auth
 
 import javax.inject.Inject
 
+import _root_.services.UserService
 import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.api.exceptions.ProviderException
 import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.api.util.{ Credentials, PasswordHasherRegistry, PasswordInfo }
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
+import controllers.{ WebJarAssets }
 import forms.ChangePasswordForm
-import _root_.services.UserService
 import play.api.i18n.{ I18nSupport, Messages, MessagesApi }
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc.Controller
@@ -43,7 +44,7 @@ class ChangePasswordController @Inject() (
    * @return The result to display.
    */
   def view = silhouette.SecuredAction(WithProvider[DefaultEnv#A](CredentialsProvider.ID)) { implicit request =>
-    Ok(views.html.changePassword(ChangePasswordForm.form, request.identity))
+    Ok(views.html.auth.changePassword(ChangePasswordForm.form, request.identity))
   }
 
   /**
@@ -53,7 +54,7 @@ class ChangePasswordController @Inject() (
    */
   def submit = silhouette.SecuredAction(WithProvider[DefaultEnv#A](CredentialsProvider.ID)).async { implicit request =>
     ChangePasswordForm.form.bindFromRequest.fold(
-      form => Future.successful(BadRequest(views.html.changePassword(form, request.identity))),
+      form => Future.successful(BadRequest(views.html.auth.changePassword(form, request.identity))),
       password => {
         val (currentPassword, newPassword) = password
         val credentials = Credentials(request.identity.email.getOrElse(""), currentPassword)

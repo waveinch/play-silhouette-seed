@@ -1,12 +1,13 @@
-package controllers
+package controllers.auth
 
 import javax.inject.Inject
 
+import _root_.services.UserService
 import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.api.exceptions.ProviderException
 import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.impl.providers._
-import _root_.services.UserService
+import controllers.{ WebJarAssets }
 import play.api.i18n.{ I18nSupport, Messages, MessagesApi }
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc.{ Action, Controller }
@@ -50,7 +51,7 @@ class SocialAuthController @Inject() (
             authInfo <- authInfoRepository.save(profile.loginInfo, authInfo)
             authenticator <- silhouette.env.authenticatorService.create(profile.loginInfo)
             value <- silhouette.env.authenticatorService.init(authenticator)
-            result <- silhouette.env.authenticatorService.embed(value, Redirect(routes.ApplicationController.index()))
+            result <- silhouette.env.authenticatorService.embed(value, Redirect(_root_.controllers.routes.ApplicationController.index()))
           } yield {
             silhouette.env.eventBus.publish(LoginEvent(user, request))
             result

@@ -1,7 +1,8 @@
-package controllers
+package controllers.auth
 
 import javax.inject.Inject
 
+import _root_.services.UserService
 import com.mohiva.play.silhouette.api.Authenticator.Implicits._
 import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.api.exceptions.ProviderException
@@ -9,8 +10,8 @@ import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.api.util.{ Clock, Credentials }
 import com.mohiva.play.silhouette.impl.exceptions.IdentityNotFoundException
 import com.mohiva.play.silhouette.impl.providers._
+import controllers.{ WebJarAssets }
 import forms.SignInForm
-import _root_.services.UserService
 import net.ceedubs.ficus.Ficus._
 import play.api.Configuration
 import play.api.i18n.{ I18nSupport, Messages, MessagesApi }
@@ -53,7 +54,7 @@ class SignInController @Inject() (
    * @return The result to display.
    */
   def view = silhouette.UnsecuredAction.async { implicit request =>
-    Future.successful(Ok(views.html.signIn(SignInForm.form, socialProviderRegistry)))
+    Future.successful(Ok(views.html.auth.signIn(SignInForm.form, socialProviderRegistry)))
   }
 
   /**
@@ -63,14 +64,14 @@ class SignInController @Inject() (
    */
   def submit = silhouette.UnsecuredAction.async { implicit request =>
     SignInForm.form.bindFromRequest.fold(
-      form => Future.successful(BadRequest(views.html.signIn(form, socialProviderRegistry))),
+      form => Future.successful(BadRequest(views.html.auth.signIn(form, socialProviderRegistry))),
       data => {
         val credentials = Credentials(data.email, data.password)
         credentialsProvider.authenticate(credentials).flatMap { loginInfo =>
-          val result = Redirect(routes.ApplicationController.index())
+          val result = Redirect(_root_.controllers.routes.ApplicationController.index())
           userService.retrieve(loginInfo).flatMap {
             case Some(user) if !user.activated =>
-              Future.successful(Ok(views.html.activateAccount(data.email)))
+              Future.successful(Ok(views.html.auth.activateAccount(data.email)))
             case Some(user) =>
               val c = configuration.underlying
               silhouette.env.authenticatorService.create(loginInfo).map {
